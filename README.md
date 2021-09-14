@@ -1,5 +1,6 @@
 ## logseq-random-note
 Random walk through your Logseq notes.
+
 ![screenshot](./screenshot20210914.png)
 
 ### Usage
