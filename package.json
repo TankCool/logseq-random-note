@@ -1,6 +1,6 @@
 {
   "name": "logseq-random-note",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "TankCool",
   "main": "index.html",
   "description": "Random walk through your Logseq notes.",
