@@ -19,7 +19,7 @@ jobs:
         id: build
         run: |
           mkdir ${{ env.PLUGIN_NAME }}
-          cp index.html README.md package.json icon.png screenshot20210914.png ${{ env.PLUGIN_NAME }}
+          cp index.html index.js README.md package.json icon.png screenshot20210914.png ${{ env.PLUGIN_NAME }}
           zip -r ${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
           ls
           echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"
