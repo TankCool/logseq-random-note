@@ -5,7 +5,7 @@
   "main": "index.html",
   "description": "Random walk through your Logseq notes.",
   "logseq": {
-    "icon": "./logo.png",
-    "id": "TankCool-logseq-random-note"
+    "icon": "./icon.png",
+    "id": "logseq-random-note"
   }
 }
