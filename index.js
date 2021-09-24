@@ -17,7 +17,8 @@ async function openRandomPage() {
     let ret = await logseq.DB.datascriptQuery(`
     [:find (pull ?p [*])
       :where
-      [_ :block/page ?p]]
+      [_ :block/page ?p]
+      [?p :block/journal? false]]
     `)
     const pages = ret?.flat()
     if(pages && pages.length > 0) {
