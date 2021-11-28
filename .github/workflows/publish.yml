@@ -15,11 +15,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x" # You might need to adjust this value to your own version
       - name: Build
         id: build
         run: |
+          npm install -g yarn
+          yarn
+          yarn build
           mkdir ${{ env.PLUGIN_NAME }}
-          cp index.html index.js README.md package.json icon.png screenshot20210914.png ${{ env.PLUGIN_NAME }}
+          cp README.md package.json icon.png screenshot20210914.png LICENSE ${{ env.PLUGIN_NAME }}
+          mv dist ${{ env.PLUGIN_NAME }}
           zip -r ${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
           ls
           echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"
