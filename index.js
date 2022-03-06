@@ -1,54 +1,16 @@
 import '@logseq/libs'
 
-import { h, render } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
+const settingsTemplate = [
+  {
+    key: "includeJournals",
+    type: 'boolean',
+    default: false,
+    title: "Include Journals?",
+    description: "Check to include journals while you random walk through your Logseq notes.",
+  }
+]
 
-
-function IncludeJournal(props) {
-  useEffect(() => {
-    let { includeJournal } = props
-    logseq.updateSettings({
-      randomNoteIncludeJournals: includeJournal
-    })
-  }, [props.includeJournal])
-
-  return (
-    <div className="rt">
-      <label><strong>Include Journals:</strong>
-        <input type="checkbox" 
-        name="includeJournal"
-        checked={props.includeJournal ? 'checked' : ''}
-        onChange={(e) => {
-          logseq.updateSettings({
-            randomNoteIncludeJournals: e.target.checked
-          })
-        }}
-        />
-        </label>
-    </div>
-  )
-}
-
-function App() {
-  const [settings, setSettings] = useState(logseq.settings)
-  useEffect(() => {
-    logseq.on('settings:changed', (a) => {
-      setSettings(a)
-    })
-  }, [])
-
-  return (
-    <div>
-      <IncludeJournal includeJournal={settings.randomNoteIncludeJournals}></IncludeJournal>
-      <p className="ctl">
-        <button onClick={() => {
-          logseq.hideMainUI()
-        }}>Close Settings
-        </button>
-      </p>
-    </div>
-  )
-}
+logseq.useSettingsSchema(settingsTemplate)
 
 async function openRandomNote() {
   var query = `
@@ -56,7 +18,7 @@ async function openRandomNote() {
     :where
     [_ :block/page ?p]
     [?p :block/journal? false]]`
-  if (logseq.settings.randomNoteIncludeJournals) {
+  if (logseq.settings.includeJournals) {
     query = `
     [:find (pull ?p [*])
       :where
@@ -79,8 +41,6 @@ async function openRandomNote() {
 function main() {
 
   const doc = document
-
-  render(<App/>, doc.querySelector('#app'))
 
   logseq.provideModel({
     openSettingPanel (e) {
@@ -129,9 +89,6 @@ function main() {
         <a title="I'm Feeling Lucky" class="button" data-on-click="handleRandomNote">
           <i class="iconfont icon-random"></i>
         </a>
-        <a title="Random Note Settings" class="button" data-on-click="openSettingPanel" data-rect>
-          <i class="iconfont icon-shezhi"></i>
-        </a> 
       </span>
     `,
   });
