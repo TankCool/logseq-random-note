@@ -119,12 +119,54 @@ function main() {
     key: "logseq-random-note-toolbar",
     template: `
       <span class="logseq-random-note-toolbar">
-        <a title="I'm Feeling Lucky" class="button" data-on-click="handleRandomNote">
+        <a title="I'm Feeling Lucky(r n)" class="button" data-on-click="handleRandomNote">
           <i class="ti ti-windmill"></i>
         </a>
       </span>
     `,
   });
+
+  logseq.App.registerCommandPalette(
+    {
+      key: "logseq-random-note",
+      label: "Random note => Let's go",
+      keybinding: {
+        mode: 'non-editing',
+        binding: 'r n'
+      }
+    },
+    (data) => {
+      openRandomNote() 
+    }
+  );
+
+  logseq.App.registerCommandPalette(
+    {
+      key: "logseq-random-note:page-mode",
+      label: "Random note => page mode",
+    },
+    (data) => {
+      logseq.updateSettings({ randomMode: "page" });
+    }
+  );
+  logseq.App.registerCommandPalette(
+    {
+      key: "logseq-random-note:tags-mode",
+      label: "Random note => tags mode",
+    },
+    (data) => {
+      logseq.updateSettings({ randomMode: "tags" });
+    }
+  );
+  logseq.App.registerCommandPalette(
+    {
+      key: "logseq-random-note:query-mode",
+      label: "Random note => query mode",
+    },
+    (data) => {
+      logseq.updateSettings({ randomMode: "query" });
+    }
+  );
 }
 
 logseq.ready(main).catch(console.error);
