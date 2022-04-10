@@ -1,97 +1,130 @@
-import '@logseq/libs'
+import "@logseq/libs";
 
 const settingsTemplate = [
   {
+    key: "randomMode",
+    type: "enum",
+    default: "page",
+    title: "Random Mode",
+    description: "Page, tags or advanced query",
+    enumChoices: ["page", "tags", "query"],
+    enumPicker: "radio",
+  },
+  {
     key: "includeJournals",
-    type: 'boolean',
+    type: "boolean",
     default: false,
-    title: "Include Journals?",
-    description: "Check to include journals while you random walk through your Logseq notes.",
-  }
-]
+    title: "Page mode",
+    description: "Include Journals?",
+  },
+  {
+    key: "randomTags",
+    type: "string",
+    default: "",
+    title: "Tags mode",
+    description: "Comma separated the tags. e.g. programing,design,sports",
+  },
+  {
+    key: "advancedQuery",
+    type: "string",
+    default: "",
+    title: "Query mode",
+    description:
+      'Your custom query. e.g. [:find (pull ?b [*]) :where [?b :block/refs ?bp] [?bp :block/name "book"]]',
+  },
+];
 
-logseq.useSettingsSchema(settingsTemplate)
+logseq.useSettingsSchema(settingsTemplate);
 
 async function openRandomNote() {
-  var query = `
-  [:find (pull ?p [*])
-    :where
-    [_ :block/page ?p]
-    [?p :block/journal? false]]`
-  if (logseq.settings.includeJournals) {
-    query = `
-    [:find (pull ?p [*])
-      :where
-      [_ :block/page ?p]]` 
-  }
+  const queryScript = getQueryScript();
   try {
-    let ret = await logseq.DB.datascriptQuery(query)
-    const pages = ret?.flat()
-    if(pages && pages.length > 0) {
-      const index = Math.floor(Math.random() * pages.length)
-      logseq.App.pushState('page', {
-        name: pages[index].name
-      })
+    let ret = await logseq.DB.datascriptQuery(queryScript);
+    const pages = ret?.flat();
+    if (pages && pages.length > 0) {
+      const index = Math.floor(Math.random() * pages.length);
+      const page = pages[index];
+      if (page && page.name) {
+        logseq.App.pushState("page", { name: page.name });
+      } else if (page && page.page) {
+        const blockInfo = (await logseq.Editor.getBlock(page.id)) || {
+          uuid: "",
+        };
+        logseq.App.pushState("page", { name: blockInfo.uuid });
+      }
     }
   } catch (err) {
-    console.log(err)
+    logseq.App.showMsg(
+      err.message || "Maybe something wrong with the query",
+      "error"
+    );
+    console.log(err);
+  }
+}
+
+function getQueryScript() {
+  const randomMode = logseq.settings.randomMode;
+  const includeJournals = logseq.settings.includeJournals;
+  const randomTags = logseq.settings.randomTags.split(",");
+  const defaultQuery = `
+  [:find (pull ?p [*])
+    :where
+    [_ :block/page ?p]]`;
+  switch (randomMode) {
+    case "page":
+      if (includeJournals) {
+        return `
+        [:find (pull ?p [*])
+          :where
+          [_ :block/page ?p]]`;
+      } else {
+        return `
+        [:find (pull ?p [*])
+          :where
+          [_ :block/page ?p]
+          [?p :block/journal? false]]`;
+      }
+    case "tags":
+      const tags = randomTags.map((item) => '"' + item + '"').join(",");
+      if (!logseq.settings.randomTags) {
+        logseq.App.showMsg("Random tags are required.", "warning");
+      }
+      return (
+        `
+      [:find (pull ?b [*])
+        :where
+        [?b :block/refs ?bp] 
+        [?bp :block/name ?name]
+        [(contains? #{` +
+        tags +
+        `} ?name)]]
+      `
+      );
+    case "query":
+      return logseq.settings.advancedQuery;
+    default:
+      console.log("unknown");
+      return defaultQuery;
   }
 }
 
 function main() {
-
-  const doc = document
-
   logseq.provideModel({
-    openSettingPanel (e) {
-      const { rect } = e
-      logseq.setMainUIInlineStyle({
-        top: `${rect.top + 25}px`,
-        left: `${rect.right - 17}px`,
-      })
-      logseq.toggleMainUI()
-    },
     handleRandomNote() {
-      openRandomNote()
-    }
-  },
-)
-
-  logseq.provideStyle(`
-  @import url("https://at.alicdn.com/t/font_2809512_lswgn9yir8.css");
-  
-  .logseq-random-note-toolbar {
-    display: flex;
-    border-radius: 5px;
-  }
-
-  .logseq-random-note-toolbar a.button {
-    padding: 0;   
-    margin: 0;
-  }
-
-  .logseq-random-note-toolbar .iconfont {
-    font-size: 18px;
-  }
-  `);
-
-  logseq.setMainUIInlineStyle({
-    position: "fixed",
-    width: '290px',
-    zIndex: 999,
-    transform: 'translateX(-50%)',
+      openRandomNote();
+    },
   });
 
   logseq.App.registerUIItem("toolbar", {
-    key: 'logseq-random-note-toolbar',
+    key: "logseq-random-note-toolbar",
     template: `
       <span class="logseq-random-note-toolbar">
         <a title="I'm Feeling Lucky" class="button" data-on-click="handleRandomNote">
-          <i class="iconfont icon-random"></i>
+          <i class="ti ti-windmill"></i>
         </a>
       </span>
     `,
   });
 }
 
-logseq.ready(main).catch(console.error)
+logseq.ready(main).catch(console.error);
