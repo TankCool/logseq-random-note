@@ -10,5 +10,6 @@ Random walk through your Logseq notes.
 * `r n`: random note.
 * Support switch random mode in command palette.
   * Random note => page mode
+  * Random note => card mode
   * Random note => tags mode
   * Random note => query mode

@@ -6,8 +6,8 @@ const settingsTemplate = [
     type: "enum",
     default: "page",
     title: "Random Mode",
-    description: "Page, tags or advanced query",
-    enumChoices: ["page", "tags", "query"],
+    description: "Page, card, tags or advanced query",
+    enumChoices: ["page", "card", "tags", "query"],
     enumPicker: "radio",
   },
   {
@@ -85,7 +85,7 @@ function getQueryScript() {
           [?p :block/journal? false]]`;
       }
     case "tags":
-      const tags = randomTags.map((item) => '"' + item + '"').join(",");
+      const tags = randomTags.map((item) => '"' + item.toLowerCase() + '"').join(",");
       if (!logseq.settings.randomTags) {
         logseq.App.showMsg("Random tags are required.", "warning");
       }
@@ -100,6 +100,16 @@ function getQueryScript() {
         `} ?name)]]
       `
       );
+      case "card":
+        return (
+        `
+        [:find (pull ?b [*])
+          :where
+          [?b :block/refs ?bp] 
+          [?bp :block/name ?name]
+          [(contains? #{"card"} ?name)]]
+        `
+        );
     case "query":
       return logseq.settings.advancedQuery;
     default:
@@ -131,12 +141,12 @@ function main() {
       key: "logseq-random-note",
       label: "Random note => Let's go",
       keybinding: {
-        mode: 'non-editing',
-        binding: 'r n'
-      }
+        mode: "non-editing",
+        binding: "r n",
+      },
     },
-    (data) => {
-      openRandomNote() 
+    () => {
+      openRandomNote();
     }
   );
 
@@ -145,7 +155,7 @@ function main() {
       key: "logseq-random-note:page-mode",
       label: "Random note => page mode",
     },
-    (data) => {
+    () => {
       logseq.updateSettings({ randomMode: "page" });
     }
   );
@@ -154,8 +164,17 @@ function main() {
       key: "logseq-random-note:tags-mode",
       label: "Random note => tags mode",
     },
-    (data) => {
+    () => {
       logseq.updateSettings({ randomMode: "tags" });
+    }
+  );
+  logseq.App.registerCommandPalette(
+    {
+      key: "logseq-random-note:card-mode",
+      label: "Random note => card mode",
+    },
+    () => {
+      logseq.updateSettings({ randomMode: "card" });
     }
   );
   logseq.App.registerCommandPalette(
@@ -163,7 +182,7 @@ function main() {
       key: "logseq-random-note:query-mode",
       label: "Random note => query mode",
     },
-    (data) => {
+    () => {
       logseq.updateSettings({ randomMode: "query" });
     }
   );
