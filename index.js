@@ -1,6 +1,7 @@
 import "@logseq/libs";
 
 const settingsTemplate = [
+
   {
     key: "randomMode",
     type: "enum",
@@ -32,26 +33,28 @@ const settingsTemplate = [
     description:
       'Your custom query. e.g. [:find (pull ?b [*]) :where [?b :block/refs ?bp] [?bp :block/name "book"]]',
   },
+  {
+    key: "randomStepSize",
+    type: 'enum',
+    default: "1",
+    title: "Random walk step size.",
+    description: "Random walk step size. Use it with caution. One shows in main area, others show in the right sidebar.",
+    enumChoices: ["1", "3", "5", "7", "10"],
+    enumPicker: 'radio' 
+  }
 ];
 
 logseq.useSettingsSchema(settingsTemplate);
 
 async function openRandomNote() {
   const queryScript = getQueryScript();
+  let stepSize = parseInt(logseq.settings.randomStepSize || 1);
   try {
     let ret = await logseq.DB.datascriptQuery(queryScript);
     const pages = ret?.flat();
-    if (pages && pages.length > 0) {
-      const index = Math.floor(Math.random() * pages.length);
-      const page = pages[index];
-      if (page && page.name) {
-        logseq.App.pushState("page", { name: page.name });
-      } else if (page && page.page) {
-        const blockInfo = (await logseq.Editor.getBlock(page.id)) || {
-          uuid: "",
-        };
-        logseq.App.pushState("page", { name: blockInfo.uuid });
-      }
+    openRandomNoteInMain(pages);
+    if (stepSize > 1) {
+      openRandomNoteInSidebar(pages, stepSize - 1);
     }
   } catch (err) {
     logseq.App.showMsg(
@@ -59,6 +62,39 @@ async function openRandomNote() {
       "error"
     );
     console.log(err);
+  }
+}
+
+/**
+ * open random note in main area.
+ * @param {*} pages 
+ */
+async function openRandomNoteInMain(pages) {
+  if (pages && pages.length > 0) {
+    const index = Math.floor(Math.random() * pages.length);
+    const page = pages[index];
+    if (page && page.name) {
+      logseq.App.pushState("page", { name: page.name });
+    } else if (page && page.page) {
+      const blockInfo = (await logseq.Editor.getBlock(page.id)) || {
+        uuid: "",
+      };
+      logseq.App.pushState("page", { name: blockInfo.uuid });
+    }
+  }
+}
+
+/**
+ * open random notes in right sidebar.
+ * @param {*} pages 
+ * @param {*} counts 
+ */
+async function openRandomNoteInSidebar(pages, counts) {
+  for(var i = 0; i < counts; i++) {
+    const index = Math.floor(Math.random() * pages.length);
+    const page = pages[index];
+    let uuid = page.uuid?.$uuid$ || ''
+    logseq.Editor.openInRightSidebar(uuid)
   }
 }
 

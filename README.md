@@ -13,3 +13,6 @@ Random walk through your Logseq notes.
   * Random note => card mode
   * Random note => tags mode
   * Random note => query mode
+* Add random step size setting. 
+  One show in main area, others show in the right sidebar.
+  ps: You can use logseq built in shortcut `cmd + c cmd + c` to clear the right sidebar.
