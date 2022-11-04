@@ -52,6 +52,15 @@ async function openRandomNote() {
   try {
     let ret = await logseq.DB.datascriptQuery(queryScript);
     const pages = ret?.flat();
+    for (let i = 0; i < pages.length; i++) {
+      const block = pages[i];
+      if (
+        block.parent.id === block.page.id &&
+        (await logseq.Editor.getPreviousSiblingBlock(block.uuid)) == null
+      ) {
+        pages[i] = await logseq.Editor.getPage(block.page.id);
+      }
+    }
     openRandomNoteInMain(pages);
     if (stepSize > 1) {
       openRandomNoteInSidebar(pages, stepSize - 1);
