@@ -10,7 +10,7 @@
   },
   "logseq": {
     "icon": "./icon.png",
-    "id": "_logseq-random-note"
+    "id": "logseq-random-note"
   },
   "dependencies": {
     "@logseq/libs": "^0.0.1-alpha.35"
