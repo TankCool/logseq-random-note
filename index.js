@@ -54,11 +54,7 @@ async function openRandomNote() {
     const pages = ret?.flat();
     for (let i = 0; i < pages.length; i++) {
       const block = pages[i];
-      if (
-        block.parent && block.page &&
-        block.parent?.id === block.page?.id &&
-        (await logseq.Editor.getPreviousSiblingBlock(block.uuid)) == null
-      ) {
+      if (block["pre-block?"]) {
         pages[i] = await logseq.Editor.getPage(block.page.id);
       }
     }
