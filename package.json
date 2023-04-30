@@ -1,6 +1,6 @@
 {
   "name": "logseq-random-note",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "author": "TankCool",
   "main": "dist/index.html",
   "description": "Random walk through your Logseq notes.",
@@ -13,7 +13,8 @@
     "id": "logseq-random-note"
   },
   "dependencies": {
-    "@logseq/libs": "^0.0.1-alpha.35"
+    "@logseq/libs": "^0.0.14",
+    "axios": "^1.4.0"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.5"
