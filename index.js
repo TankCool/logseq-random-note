@@ -3,6 +3,14 @@ import axios from "axios";
 
 const settingsTemplate = [
   {
+    key: "keyboard",
+    type: "string",
+    default: "r n",
+    description:
+      'Type in the key or key combination you wish to use to toggle. If you want multiple key combinations, add a space or "+" between the keys ("r n" or "ctrl+r"). \n\rIMPORTANT: After changing the hotkey, you must restart Logseq to take effect.',
+    title: "Keyboard Hotkey",
+  },
+  {
     key: "randomMode",
     type: "enum",
     default: "page",
@@ -284,7 +292,7 @@ function main() {
       label: "Random note => Let's go",
       keybinding: {
         mode: "non-editing",
-        binding: "r n",
+        binding: logseq.settings.keyboard || "r n",
       },
     },
     () => {
