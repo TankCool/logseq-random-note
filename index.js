@@ -260,19 +260,18 @@ function getQueryScript() {
   const defaultQuery = `
   [:find (pull ?p [*])
     :where
-    [_ :block/page ?p]]`;
+    [?p :block/name _]]`;
   switch (randomMode) {
     case "page":
       if (includeJournals) {
         return `
         [:find (pull ?p [*])
           :where
-          [_ :block/page ?p]]`;
+          [?p :block/name _]]`;
       } else {
         return `
         [:find (pull ?p [*])
           :where
-          [_ :block/page ?p]
           [?p :block/journal? false]]`;
       }
     case "tags":
