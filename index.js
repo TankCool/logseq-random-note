@@ -427,11 +427,11 @@ function main() {
   );
 
   const sendContentInterval = setInterval(() => {
-    console.log("sendContentInterval running...");
+    /*console.log("sendContentInterval running...");*/
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
-    console.log("hour: " + hour + " minute: " + minute);
+    /*console.log("hour: " + hour + " minute: " + minute);*/
     const activeHours = logseq.settings.activeHours;
     const activeMinutes = logseq.settings.activeMinutes;
     const enableTelegramBot = logseq.settings.enableTelegramBot;
