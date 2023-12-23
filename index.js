@@ -1,5 +1,4 @@
 import "@logseq/libs";
-import axios from "axios";
 
 const settingsTemplate = [
   {
@@ -51,45 +50,6 @@ const settingsTemplate = [
       "Random walk step size. Use it with caution. One shows in main area, others show in the right sidebar.",
     enumChoices: ["1", "3", "5", "7", "10"],
     enumPicker: "radio",
-  },
-  {
-    key: "enableTelegramBot",
-    title: "Enable telegram bot",
-    description: "Enable telegram bot. It doesn't work in page mode.",
-    type: "boolean",
-    default: false,
-  },
-  {
-    key: "telegramBotToken",
-    type: "string",
-    default: "",
-    title: "Telegram bot token",
-    description: "",
-  },
-  {
-    key: "telegramBotChatId",
-    type: "string",
-    default: "",
-    title: "Telegram bot chatId",
-    description: "",
-  },
-  {
-    key: "activeHours",
-    title: "Telegram bot active hours",
-    type: "enum",
-    enumChoices: Array.from({ length: 24 }, (_, i) => i + ""),
-    enumPicker: "checkbox",
-    default: [],
-    description: "",
-  },
-  {
-    key: "activeMinutes",
-    title: "Telegram bot active minutes",
-    type: "enum",
-    enumChoices: Array.from({ length: 60 }, (_, i) => i + ""),
-    enumPicker: "checkbox",
-    default: ["0"],
-    description: "",
   },
 ];
 
@@ -149,32 +109,6 @@ async function openRandomNoteInSidebar(pages, counts) {
     const index = Math.floor(Math.random() * pages.length);
     const page = pages[index];
     logseq.Editor.openInRightSidebar(page.uuid);
-  }
-}
-
-/**
- * 发送消息到telegram bot
- * @param {*} msg
- */
-async function sendToTelegramBot(msg) {
-  const token = logseq.settings.telegramBotToken;
-  const chatId = logseq.settings.telegramBotChatId;
-  const sendUrl =
-    "https://api.telegram.org/bot" +
-    token +
-    "/sendMessage?chat_id=" +
-    chatId +
-    "&text=" +
-    encodeURIComponent(msg);
-  if (token && chatId) {
-    axios
-      .get(sendUrl)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }
 }
 
@@ -276,7 +210,7 @@ function main() {
   });
 
   logseq.App.registerUIItem("toolbar", {
-    key: "logseq-random-note-toolbar",
+    key: "RandomNote",
     template: `
       <span class="logseq-random-note-toolbar">
         <a title="I'm Feeling Lucky(r n)" class="button" data-on-click="handleRandomNote">
@@ -336,48 +270,6 @@ function main() {
       logseq.updateSettings({ randomMode: "query" });
     }
   );
-
-  logseq.App.registerCommandPalette(
-    {
-      key: "logseq-random-note:toggle-telegram-bot",
-      label: "Random note => Toggle Telegram Bot",
-    },
-    () => {
-      const enable = logseq.settings.enableTelegramBot;
-      logseq.updateSettings({ enableTelegramBot: !enable });
-      logseq.UI.showMsg(
-        "RandomNote Telegram Bot " + (enable ? "Disabled" : "Enabled"),
-        "success"
-      );
-    }
-  );
-
-  const sendContentInterval = setInterval(() => {
-    console.log("sendContentInterval running...");
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    console.log("hour: " + hour + " minute: " + minute);
-    const activeHours = logseq.settings.activeHours;
-    const activeMinutes = logseq.settings.activeMinutes;
-    const enableTelegramBot = logseq.settings.enableTelegramBot;
-    if (
-      enableTelegramBot &&
-      activeHours.indexOf(hour + "") > -1 &&
-      activeMinutes.indexOf(minute + "") > -1
-    ) {
-      getRandomNoteInfo().then((content) => {
-        console.log(content);
-        !!content && sendToTelegramBot(content);
-      });
-    }
-  }, 60 * 1000);
-
-  logseq.beforeunload(() => {
-    window.clearInterval(sendContentInterval);
-    console.log("logseq.beforeunload => clear sendContentInterval");
-    return Promise.resolve();
-  });
 }
 
 logseq.ready(main).catch(console.error);
